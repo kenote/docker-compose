@@ -41,12 +41,12 @@ cd /mnt/docker-data/cloudreve
 
 拉取 `docker-compose.yml`
 ```bash
-wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/cloudreve/compose.yml
+wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/main/cloudreve/compose.yml
 ```
 
 拉取 `.env`
 ```bash
-wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/cloudreve/.env.example
+wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/main/cloudreve/.env.example
 ```
 
 编辑 `.env`

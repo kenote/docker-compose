@@ -16,12 +16,12 @@ cd /mnt/docker-data/filebrowser
 
 拉取 `docker-compose.yml`
 ```bash
-wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/filebrowser/compose.yml
+wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/main/filebrowser/compose.yml
 ```
 
 拉取 `.env`
 ```bash
-wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/filebrowser/.env.example
+wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/main/filebrowser/.env.example
 ```
 
 编辑 `.env`

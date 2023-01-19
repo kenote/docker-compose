@@ -19,9 +19,10 @@ services:
     image: ddsderek/aria2-pro
     container_name: aria2
     restart: unless-stopped
+    network_mode: "host"
     environment:
-      - RPC_SECRET=your_aria_rpc_token
-      - RPC_PORT=6800
+      - RPC_SECRET=${RPC_SECRET}
+      - RPC_PORT=${RPC_PORT:-6800}
       - DOWNLOAD_DIR=/data
       - PUID=0
       - PGID=0

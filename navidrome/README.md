@@ -16,12 +16,12 @@ cd /mnt/docker-data/navidrome
 
 拉取 `docker-compose.yml`
 ```bash
-wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/navidrome/compose.yml
+wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/main/navidrome/compose.yml
 ```
 
 拉取 `.env`
 ```bash
-wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/navidrome/.env.example
+wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/main/navidrome/.env.example
 ```
 
 编辑 `.env`
