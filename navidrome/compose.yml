@@ -1,0 +1,25 @@
+---
+version: '3'
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    ports:
+      - '${HTTP_PORT:-4533}:4533'
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_SCANSCHEDULE: ${ND_SCANSCHEDULE:-1h}
+      ND_LASTFM_ENABLED: ${ND_LASTFM_ENABLED:-0}
+      ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
+      ND_LASTFM_LANGUAGE: ${ND_LASTFM_LANGUAGE}
+      ND_SPOTIFY_ID: ${ND_SPOTIFY_ID}
+      ND_SPOTIFY_SECRET: ${ND_SPOTIFY_SECRET}
+      ND_LOGLEVEL: info
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ''
+    volumes:
+      - './data:/data'
+      - '${MUSIC_DIR:-./music}:/music:ro'
