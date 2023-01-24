@@ -10,3 +10,5 @@ services:
       - '${HTTP_PORT:-8080}:80'
     volumes:
       - '${SRV_PATH:-./srv}:/srv'
+      - './data/filebrowser.db:/database.db'
+      - '.data/settings.json:/.settings.json'

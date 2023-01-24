@@ -1,0 +1,15 @@
+---
+version: '3'
+
+services:
+  bitwarden:
+    image: vaultwarden/server:latest
+    container_name: bitwarden
+    restart: unless-stopped
+    ports:
+      - '${HTTP_PORT:-6666}:80'
+      - '${RPC_PORT:-3012}:3012'
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data

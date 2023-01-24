@@ -14,6 +14,21 @@ mkdir -p /mnt/docker-data/filebrowser
 cd /mnt/docker-data/filebrowser
 ```
 
+创建数据目录
+```bash
+mkdir -p data
+```
+
+拉取 `settings.json`
+```bash
+wget --no-check-certificate -qO ./data/settings.json https://raw.githubusercontent.com/kenote/docker-compose/main/filebrowser/settings.json
+```
+
+创建数据库文件
+```bash
+touch ./data/filebrowser.db
+```
+
 拉取 `docker-compose.yml`
 ```bash
 wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/main/filebrowser/compose.yml
@@ -54,6 +69,13 @@ location / {
     proxy_set_header Connection "upgrade";
 
     # 设定上传文件最大大小
-    client_max_body_size 100m;
+    client_max_body_size 1000m;
 }
+```
+
+## 默认账号/密码
+
+```yaml
+username: admin
+password: admin
 ```
