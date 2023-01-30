@@ -1,0 +1,34 @@
+---
+version: '3.7'
+
+services:
+  yourls:
+    image: yourls
+    container_name: yourls
+    restart: always
+    ports:
+      - ${HTTP_PORT:-8080}:80
+    environment:
+      - YOURLS_DB_HOST=${MYSQL_HOST:-mysql}
+      - YOURLS_DB_USER=${MYSQL_USER:-yourls}
+      - YOURLS_DB_PASS=${MYSQL_PASS:-yourls}
+      - YOURLS_DB_NAME=${MYSQL_DATABASE:-yourls}
+      - YOURLS_SITE=${YOURLS_SITE}
+      - YOURLS_USER=${YOURLS_USER:-admin}
+      - YOURLS_PASS=${YOURLS_PASS:-admin}
+      - YOURLS_HOURS_OFFSET=${YOURLS_HOURS_OFFSET:-8}
+    volumes:
+      - ./html/:/var/www/html
+
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-yourls}
+      - MYSQL_USER=${MYSQL_USER:-yourls}
+      - MYSQL_PASSWORD=${MYSQL_PASS:-yourls}
+    volumes:
+      - ./mysql/db/:/var/lib/mysql
+      - ./mysql/conf/:/etc/mysql/conf.d
