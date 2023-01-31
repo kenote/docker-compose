@@ -1,0 +1,64 @@
+---
+version: '3'
+
+services:
+  halo:
+    image: halohub/halo:1.6.0
+    container_name: halo
+    restart: on-failure:3
+    depends_on:
+      - halo_mysql
+      - halo_redis
+    ports:
+      - '${SERVER_PORT:-8090}:8090'
+    networks:
+      halo_network:
+    volumes:
+      - ./.halo/.halo
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - SERVER_PORT=${SERVER_PORT:-8090}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=${DATASOURCE_DRIVER}
+      - SPRING_DATASOURCE_URL=${DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${DATASOURCE_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DATASOURCE_PASS:-o#DwN&JSa56}
+      - HALO_ADMIN_PATH=admin
+      - HALO_CACHE=${HALO_CACHE:-memory}
+      - SPRING_REDIS_HOST=${REDIS_HOST:-halo_redis}
+      - SPRING_REDIS_PORT=${REDIS_PORT:-6379}
+      - SPRING_REDIS_DATABASE=0
+      - SPRING_REDIS_PASSWORD=${REDIS_PASS:-dm5fD%rvPtq}
+
+  halo_mysql:
+    image: mysql:8.0.27
+    container_name: halo_mysql
+    restart: on-failure:3
+    networks:
+      halo_network:
+    command: --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./mysql:/var/lib/mysql
+      - ./mysqlBackup:/data/mysqlBackup
+    environment:
+      # 请修改此密码，并对应修改上方 Halo 服务的 SPRING_DATASOURCE_PASSWORD 变量值
+      - MYSQL_ROOT_PASSWORD=${DATASOURCE_PASS:-o#DwN&JSa56}
+      - MYSQL_DATABASE=${DATASOURCE_NAME:-halo}
+
+  halo_redis:
+    image: redis
+    container_name: halo_redis
+    restart: on-failure:3
+    networks:
+      halo_network:
+    volumes:
+      - ./redis/data:/data
+      - ./redis/logs:/logs
+    # 请修改此密码，并对应修改上方 Halo 服务的 SPRING_REDIS_PASSWORD 变量值
+    command: redis-server --requirepass ${REDIS_PASS:-dm5fD%rvPtq}
+    
+networks:
+  halo_network:
