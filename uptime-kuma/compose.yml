@@ -1,0 +1,11 @@
+---
+version: '3'
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    container_name: uptime-kuma
+    volumes:
+      - ./data:/app/data
+    ports:
+      - ${HTTP_PORT:-3001}:3001
