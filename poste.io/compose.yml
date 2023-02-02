@@ -1,0 +1,26 @@
+---
+version: '3'
+
+services:
+  poste.io:
+    image: analogic/poste.io
+    container_name: poste.io
+    hostname: ${HOSTNAME:-mail.example.com}
+    restart: always
+    ports:
+      - '25:25'
+      - '110:110'
+      - '143:143'
+      - '465:465'
+      - '587:587'
+      - '993:993'
+      - '995:995'
+      - '${HTTP_PORT:-8080}:80'
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - DISABLE_CLAMAV=${DISABLE_CLAMAV:-TRUE}
+      - DISABLE_RSPAMD=${DISABLE_RSPAMD:-TRUE}
+      - VIRTUAL_HOST=${HOSTNAME:-mail.example.com}
+      - HTTPS=OFF
+    volumes:
+      - ./data:/data
