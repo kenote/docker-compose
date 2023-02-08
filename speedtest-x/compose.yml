@@ -1,0 +1,19 @@
+---
+version: '3'
+
+services:
+
+  speedtest-x:
+    image: stilleshan/speedtest-x
+    container_name: speedtest-x
+    ports:
+      - ${HTTP_PORT:-8087}:80
+    restart: always
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}
+      - MAX_LOG_COUNT=${MAX_LOG_COUNT:-100}
+      - IP_SERVICE=${IP_SERVICE:-ip.sb}
+      - SAME_IP_MULTI_LOGS=${SAME_IP_MULTI_LOGS:-false}
+    volumes: 
+      - ./html:/var/www/html
+      - ./logs:/speedlogs
