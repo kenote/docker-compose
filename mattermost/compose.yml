@@ -1,0 +1,53 @@
+--- 
+version: '3'
+
+services:
+
+  mattermost: 
+    image: mattermost/mattermost-team-edition:latest
+    container_name: mattermost
+    restart: unless-stopped
+    depends_on: 
+      - postgres
+    pids_limit: 200
+    read_only: false
+    security_opt: 
+      - no-new-privileges:true
+    tmpfs: 
+      - /tmp
+    ports: 
+      - ${HTTP_PORT:-8065}:8065
+    environment:
+      - TZ=Asia/Shanghai
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://${POSTGRES_USER:-mattermost}:${POSTGRES_PASS:-mattermost}@postgres:5432/${POSTGRES_DB:-mattermost}?sslmode=disable&connect_timeout=10
+      - MM_BLEVESETTINGS_INDEXDIR=/mattermost/bleve-indexes
+      - MM_SERVICESETTINGS_SITEURL=${SITEURL:-http://mattermost.example.com}
+    volumes: 
+      - ./mattermost/config:/mattermost/config:rw
+      - ./mattermost/data:/mattermost/data:rw
+      - ./mattermost/logs:/mattermost/logs:rw
+      - ./mattermost/plugins:/mattermost/plugins:rw
+      - ./mattermost/client/plugins:/mattermost/client/plugins:rw
+      - ./mattermost/bleve-indexes:/mattermost/bleve-indexes:rw
+
+  postgres:
+    image: postgres:14.5
+    container_name: postgres
+    restart: unless-stopped
+    pids_limit: 100
+    read_only: true
+    security_opt: 
+      - no-new-privileges:true
+    tmpfs: 
+      - /tmp
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-mattermost}
+      - POSTGRES_USER=${POSTGRES_USER:-mattermost}
+      - POSTGRES_PASSWORD=${POSTGRES_PASS:-mattermost}
+    volumes: 
+      - ./postgresql/data:/var/lib/postgresql/data
+      - lock:/var/run/postgresql
+
+volumes: 
+  lock: ~
