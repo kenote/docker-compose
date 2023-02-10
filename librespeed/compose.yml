@@ -1,0 +1,13 @@
+---
+version: '3.3'
+
+services:
+  librespeed:
+    image: adolfintel/speedtest
+    container_name: librespeed
+    restart: always
+    environment:
+      - TITLE=${PAGE_TITLE:-SpeedTest}
+      - MODE=standalone
+    ports:
+      - ${HTTP_PORT:-8086}:80
