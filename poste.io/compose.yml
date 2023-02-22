@@ -5,7 +5,7 @@ services:
   poste.io:
     image: analogic/poste.io
     container_name: poste.io
-    hostname: ${HOSTNAME:-mail.example.com}
+    hostname: ${VIRTUAL_HOST}
     restart: always
     ports:
       - '25:25'
@@ -17,10 +17,11 @@ services:
       - '995:995'
       - '${HTTP_PORT:-8080}:80'
     environment:
+      - APP_ENV=${APP_ENV}
       - TZ=${TZ:-Asia/Shanghai}
-      - DISABLE_CLAMAV=${DISABLE_CLAMAV:-TRUE}
-      - DISABLE_RSPAMD=${DISABLE_RSPAMD:-TRUE}
-      - VIRTUAL_HOST=${HOSTNAME:-mail.example.com}
+      - DISABLE_CLAMAV=${DISABLE_CLAMAV}
+      - DISABLE_RSPAMD=${DISABLE_RSPAMD}
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
       - HTTPS=OFF
     volumes:
       - ./data:/data

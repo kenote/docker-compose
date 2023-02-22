@@ -4,6 +4,11 @@ Poste.io 邮件服务器是一个小而精的邮件服务器，其功能丰富�
 
 ## 安装部署
 
+先卸载系统默认 `postfix` 服务，避免 `25` 端口冲突
+```bash
+yum remove postfix
+```
+
 创建目录
 ```bash
 mkdir -p /mnt/docker-data/poste.io
