@@ -59,3 +59,5 @@ location / {
     proxy_set_header Connection "upgrade";
 }
 ```
+
+初始登录账号密码为 admin 和 umami，登录后可以在设置中修改
