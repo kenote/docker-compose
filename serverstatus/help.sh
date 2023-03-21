@@ -63,7 +63,6 @@ check_sys(){
 pre_check() {
     sys_echo "${yellow}检测系统环境中...${plain}"
     trap 'clear; exit' INT
-    stty erase '^H' # 解决使用read时无法回退问题
     if (is_oversea); then
         REPOSITORY_RAW_ROOT="https://raw.githubusercontent.com/kenote/install"
         REPOSITORY_RAW_COMPOSE="https://raw.githubusercontent.com/kenote/docker-compose"
@@ -625,6 +624,7 @@ show_menu() {
             echo
             read  -n1  -p "按任意键继续" key
             clear
+            stty erase '^H' # 解决使用read时无法回退问题
             show_menu
             return 1
         fi
@@ -725,6 +725,7 @@ main() {
         show_menu 5
     ;;
     * )
+        stty erase '^H' # 解决使用read时无法回退问题
         show_menu
     ;;
     esac
