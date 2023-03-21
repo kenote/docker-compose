@@ -718,19 +718,8 @@ show_menu() {
     esac
 }
 
-main() {
-    case "$1" in
-    install )
-        show_menu 5
-    ;;
-    * )
-        show_menu
-    ;;
-    esac
-}
-
 clear
 check_sys
 pre_check
 install_base
-main "$@"
+show_menu
