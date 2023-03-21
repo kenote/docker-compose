@@ -99,16 +99,16 @@ read_agent_env() {
 
 # 获取参数里的值
 get_param_val() {
-    eval $2=`echo "$1" | sed -E 's/--([0-9a-zA-Z\-]+)\s/\1\=/g' | sed 's/\s/\n/g' | grep -E "^$2=" | sed -E 's/([0-9a-zA-Z\-]+)\=([^\s+])/\2/'`
+    eval _$2=`echo "$1" | sed -E 's/--([0-9a-zA-Z\-]+)\s/\1\=/g' | sed 's/\s/\n/g' | grep -E "^$2=" | sed -E 's/([0-9a-zA-Z\-]+)\=([^\s+])/\2/'`
 }
 
 # 获取参数
 get_param() {
     keycode=`echo "$1" | base64 --decode`
-    get_param_val $keycode "_host"
-    get_param_val $keycode "_port"
-    get_param_val $keycode "_user"
-    get_param_val $keycode "_pass"
+    get_param_val "$keycode" host
+    get_param_val "$keycode" port
+    get_param_val "$keycode" user
+    get_param_val "$keycode" pass
 }
 
 # 配置参数
@@ -438,6 +438,7 @@ show_menu() {
 }
 
 main() {
+    clear
     case "$1" in
     install )
         read_agent_env "only"
