@@ -350,7 +350,7 @@ agent_script() {
             sys_echo "复制以下代码到客户机执行"
             sys_echo "------------------------------------------------"
             sys_echo "wget -O sss-agent.sh ${REPOSITORY_RAW_URL}/agent.sh \\"
-            sys_echo "&& chmod +x sss-agent.sh && sudo \\"
+            sys_echo "&& chmod +x sss-agent.sh \\"
             sys_echo "&& sudo ./sss-agent.sh install --token ${agent_token}"
             sys_echo "------------------------------------------------"
             echo
@@ -362,7 +362,7 @@ agent_script() {
             sys_echo "复制以下代码到客户机执行"
             sys_echo "------------------------------------------------"
             sys_echo "wget -O sss-agent.sh ${REPOSITORY_RAW_URL}/agent.sh \\"
-            sys_echo "&& chmod +x sss-agent.sh && sudo \\"
+            sys_echo "&& chmod +x sss-agent.sh \\"
             sys_echo "&& sudo ./sss-agent.sh install ${agent_param}"
             sys_echo "------------------------------------------------"
             echo

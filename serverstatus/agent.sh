@@ -267,14 +267,16 @@ remove_agent() {
     sys_echo " 卸载 Server Status 客户机"
     sys_echo "${green}-----------------------------${plain}"
 
+    _SSS_AGENT_PATH=$SSS_AGENT_PATH
     if (systemctl list-unit-files | grep "$SERVICE_NAME"  &> /dev/null); then
+        _SSS_AGENT_PATH=`cat $SSS_AGENT_SERVICE | grep -E "^WorkingDirectory=" | sed 's/\(.*\)=\(.*\)/\2/g'`
         systemctl stop $SERVICE_NAME
         systemctl disable $SERVICE_NAME
         rm -rf $SSS_AGENT_SERVICE
     fi
 
-    if [[ -d $SSS_AGENT_PATH ]]; then
-        rm -rf $SSS_AGENT_PATH
+    if [[ -d $_SSS_AGENT_PATH ]]; then
+        rm -rf $_SSS_AGENT_PATH
     fi
 }
 
@@ -443,6 +445,13 @@ main() {
             sett_agent_env "${@:2}"
         else
             install_agent "${@:2}"
+        fi
+    ;;
+    remove )
+        read_agent_env "only"
+        if [[ $? == 0 ]]; then
+            remove_agent
+            sys_echo "${green}Server Status 客户机卸载完毕${plain}"
         fi
     ;;
     * )
