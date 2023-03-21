@@ -624,7 +624,6 @@ show_menu() {
             echo
             read  -n1  -p "按任意键继续" key
             clear
-            stty erase '^H' # 解决使用read时无法回退问题
             show_menu
             return 1
         fi
@@ -725,7 +724,6 @@ main() {
         show_menu 5
     ;;
     * )
-        stty erase '^H' # 解决使用read时无法回退问题
         show_menu
     ;;
     esac

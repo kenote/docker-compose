@@ -62,7 +62,6 @@ check_sys(){
 pre_check() {
     sys_echo "${yellow}检测系统环境中...${plain}"
     trap 'clear; exit' INT
-    stty erase '^H' # 解决使用read时无法回退问题
     if (is_oversea); then
         REPOSITORY_RAW_ROOT="https://raw.githubusercontent.com/kenote/install"
         REPOSITORY_RAW_COMPOSE="https://raw.githubusercontent.com/kenote/docker-compose"
