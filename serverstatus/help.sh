@@ -79,8 +79,8 @@ install_base() {
     if [[ ! -f $DRAW_TABLE ]]; then
         wget -O $DRAW_TABLE ${REPOSITORY_RAW_ROOT}/main/linux/draw_table.sh
         chmod +x $DRAW_TABLE
-        clear
     fi
+    clear
 }
 
 sys_echo() {
