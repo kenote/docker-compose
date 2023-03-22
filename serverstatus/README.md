@@ -7,23 +7,19 @@ ServerStatus 是一个酷炫高逼格的云探针、云监控、服务器云监�
 Github
 
 ```bash
-wget --no-check-certificate -qO sss.sh https://raw.githubusercontent.com/kenote/docker-compose/main/serverstatus/help.sh \
-&& chmod +x sss.sh \
-&& ./sss.sh
+mkdir -p $HOME/.compose/serverstatus \
+&& wget --no-check-certificate -qO $HOME/.compose/serverstatus/help.sh https://raw.githubusercontent.com/kenote/docker-compose/main/serverstatus/help.sh \
+&& chmod +x $HOME/.compose/serverstatus/help.sh \
+&& $HOME/.compose/serverstatus/help.sh
 ```
 
 Gitee
 
 ```bash
-wget --no-check-certificate -qO sss.sh https://gitee.com/kenote/docker-compose/raw/main/serverstatus/help.sh \
-&& chmod +x sss.sh \
-&& ./sss.sh
-```
-
-使用
-
-```bash
-./sss.sh
+mkdir -p $HOME/.compose/serverstatus \
+&& wget --no-check-certificate -qO $HOME/.compose/serverstatus/help.sh https://gitee.com/kenote/docker-compose/raw/main/serverstatus/help.sh \
+&& chmod +x $HOME/.compose/serverstatus/help.sh \
+&& $HOME/.compose/serverstatus/help.sh
 ```
 
 ## 客户机卸载
@@ -42,12 +38,6 @@ Gitee
 wget --no-check-certificate -qO sss-agent.sh https://gitee.com/kenote/docker-compose/raw/main/serverstatus/agent.sh \
 && chmod +x sss-agent.sh \
 && sudo ./sss-agent.sh remove
-```
-
-使用
-
-```bash
-./sss-agent.sh
 ```
 
 ##  反向代理

@@ -7,7 +7,6 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-CURRENT_DIR=$(cd $(dirname $0);pwd)
 confile="${CURRENT_DIR}/config.json"
 DRAW_TABLE="$HOME/.scripts/draw_table.sh"
 
@@ -204,7 +203,7 @@ install_server() {
     sed -i "s/$(cat .env | grep -E "^BIND_PORT=")/BIND_PORT=$_bind_port/" .env
 
     # 启动服务
-    docker-compose up d
+    docker-compose up -d
 }
 
 # 卸载服务

@@ -7,8 +7,6 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-CURRENT_DIR=$(cd $(dirname $0);pwd)
-
 SSS_BASE_PATH="/opt/sss"
 SSS_AGENT_PATH="$SSS_BASE_PATH/agent"
 SERVICE_NAME="sss-agent.service"
