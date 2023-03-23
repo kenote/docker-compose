@@ -4,69 +4,22 @@ Cloudreve 可助你即刻构建出兼备自用或公用的网盘服务，通过�
 
 ## 安装部署
 
-创建目录
+Github
+
 ```bash
-mkdir -p /mnt/docker-data/cloudreve
+mkdir -p $HOME/.compose/cloudreve \
+&& wget --no-check-certificate -qO $HOME/.compose/cloudreve/help.sh https://raw.githubusercontent.com/kenote/docker-compose/main/cloudreve/help.sh \
+&& chmod +x $HOME/.compose/cloudreve/help.sh \
+&& $HOME/.compose/cloudreve/help.sh
 ```
 
-进入目录
-```bash
-cd /mnt/docker-data/cloudreve
-```
+Gitee
 
-创建数据目录
 ```bash
-mkdir {cloudreve,data}
-```
-
-进入数据目录
-```bash
-cd cloudreve
-```
-
-创建上传文件目录
-```bash
-mkdir {avatar,uploads}
-```
-
-创建配置/数据文件
-```bash
-touch {conf.ini,cloudreve.db}
-```
-
-返回主目录
-```bash
-cd /mnt/docker-data/cloudreve
-```
-
-拉取 `docker-compose.yml`
-```bash
-wget --no-check-certificate -qO docker-compose.yml https://raw.githubusercontent.com/kenote/docker-compose/main/cloudreve/compose.yml
-```
-
-拉取 `.env`
-```bash
-wget --no-check-certificate -qO .env https://raw.githubusercontent.com/kenote/docker-compose/main/cloudreve/.env.example
-```
-
-编辑 `.env`
-```bash
-vim .env
-```
-
-启动
-```bash
-docker-compose up -d
-```
-
-卸载
-```bash
-docker-compose down
-```
-
-获取初始密码
-```bash
-docker-compose logs
+mkdir -p $HOME/.compose/cloudreve \
+&& wget --no-check-certificate -qO $HOME/.compose/cloudreve/help.sh https://gitee.com/kenote/docker-compose/raw/main/cloudreve/help.sh \
+&& chmod +x $HOME/.compose/cloudreve/help.sh \
+&& $HOME/.compose/cloudreve/help.sh
 ```
 
 ##  反向代理

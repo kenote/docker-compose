@@ -10,7 +10,7 @@ services:
       - '${HTTP_PORT:-5212}:5212'
     volumes:
       - temp_data:/data
-      - ./cloudreve/uploads:/cloudreve/uploads
+      - ${UPLOAD_DIR:-./cloudreve/uploads}:/cloudreve/uploads
       - ./cloudreve/conf.ini:/cloudreve/conf.ini
       - ./cloudreve/cloudreve.db:/cloudreve/cloudreve.db
       - ./cloudreve/avatar:/cloudreve/avatar
