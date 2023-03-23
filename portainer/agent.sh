@@ -7,6 +7,8 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+pattern_port="^[1-9]{1}[0-9]{1,4}$"
+
 is_oversea() {
     curl --connect-timeout 5 https://www.google.com -s --head | head -n 1 | grep "HTTP/1.[01] [23].." &> /dev/null;
 }
