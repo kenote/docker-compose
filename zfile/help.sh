@@ -61,7 +61,7 @@ pre_check() {
         REPOSITORY_RAW_ROOT="https://gitee.com/kenote/install/raw"
         REPOSITORY_RAW_COMPOSE="https://gitee.com/kenote/docker-compose/raw"
     fi
-    REPOSITORY_RAW_URL="$REPOSITORY_RAW_COMPOSE/main/cloudreve"
+    REPOSITORY_RAW_URL="$REPOSITORY_RAW_COMPOSE/main/zfile"
     curl -s $REPOSITORY_RAW_ROOT/main/linux/docker/help.sh | bash -s install
     DOCKER_WORKDIR=`[ -f $HOME/.docker_profile ] && cat $HOME/.docker_profile | grep "^DOCKER_WORKDIR" | sed -n '1p' | sed 's/\(.*\)=\(.*\)/\2/g' || echo "/home/docker-data"`
     clear
@@ -77,9 +77,9 @@ sys_echo() {
 
 # 读取服务环境
 read_server_env() {
-    CONTAINER_ID=`docker container ls -a -q -f "ancestor=cloudreve/cloudreve"`
+    CONTAINER_ID=`docker container ls -a -q -f "ancestor=zhaojun1998/zfile"`
     if [[ $CONTAINER_ID == '' ]]; then
-        sys_echo "${yellow}Cloudreve 服务未安装${plain}"
+        sys_echo "${yellow}ZFile 服务未安装${plain}"
         return 1
     fi
     CONTAINER_STATUS=`docker inspect $CONTAINER_ID | jq -r ".[0].State.Status"`
@@ -112,7 +112,7 @@ sett_server_env() {
 
     if [[ $1 == 'save' ]]; then
         sys_echo "${green}-----------------------------${plain}"
-        sys_echo " 配置 Cloudreve 服务"
+        sys_echo " 配置 ZFile 服务"
         sys_echo "${green}-----------------------------${plain}"
         EXCLUDE_HTTP_PORT=$HTTP_PORT
         
@@ -144,11 +144,6 @@ sett_server_env() {
         mkdir -p $_upload_dir
         sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
         sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
-        confirm "是否更新 Aria2 令牌?" "n"
-        if [[ $? == 0 ]]; then
-            _rpc_secret=`strings /dev/urandom | tr -dc A-Za-z0-9 | head -c16; echo`
-            sed -i "s/$(cat .env | grep -E "^RPC_SECRET=")/RPC_SECRET=$_rpc_secret/" .env
-        fi
         docker-compose down
         docker-compose up -d
     fi
@@ -157,13 +152,13 @@ sett_server_env() {
 # 安装服务
 install_server() {
     sys_echo "${green}-----------------------------${plain}"
-    sys_echo " 安装 Cloudreve 服务"
+    sys_echo " 安装 ZFile 服务"
     sys_echo "${green}-----------------------------${plain}"
 
-    while read -p "安装路径[cloudreve]: " _workdir
+    while read -p "安装路径[zfile]: " _workdir
     do
         if [[ $_workdir = '' ]]; then
-            _workdir="cloudreve"
+            _workdir="zfile"
         fi
         _workdir=`[[ $_workdir =~ ^\/ ]] && echo "$_workdir" || echo "$DOCKER_WORKDIR/$_workdir"`
     done
@@ -172,20 +167,17 @@ install_server() {
     # 创建工作目录
     mkdir -p $_workdir
     cd $_workdir
-    mkdir -p {cloudreve,data}
-    mkdir -p {cloudreve/avatar,cloudreve/uploads}
-    touch {cloudreve/conf.ini,cloudreve/cloudreve.db}
+    mkdir -p {db,logs}
     mkdir -p $_upload_dir
 
     # 拉取 compose 及 配置文件
-    wget --no-check-certificate -qO docker-compose.yml $REPOSITORY_RAW_COMPOSE/main/cloudreve/compose.yml
-    wget --no-check-certificate -qO .env $REPOSITORY_RAW_COMPOSE/main/cloudreve/.env.example
+    wget --no-check-certificate -qO docker-compose.yml $REPOSITORY_RAW_COMPOSE/main/zfile/compose.yml
+    wget --no-check-certificate -qO .env $REPOSITORY_RAW_COMPOSE/main/zfile/.env.example
+    wget --no-check-certificate -qO application.properties $REPOSITORY_RAW_COMPOSE/main/zfile/application.properties
 
     # 设置参数
     sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
     sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
-    _rpc_secret=`strings /dev/urandom | tr -dc A-Za-z0-9 | head -c16; echo`
-    sed -i "s/$(cat .env | grep -E "^RPC_SECRET=")/RPC_SECRET=$_rpc_secret/" .env
 
     # 启动服务
     docker-compose up -d
@@ -195,7 +187,7 @@ install_server() {
 # 卸载服务
 remove_server() {
     sys_echo "${green}-----------------------------${plain}"
-    sys_echo " 卸载 Cloudreve 服务"
+    sys_echo " 卸载 ZFile 服务"
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
@@ -210,7 +202,7 @@ remove_server() {
 # 升级容器
 update_server() {
     sys_echo "${green}-----------------------------${plain}"
-    sys_echo " 升级 Cloudreve 容器"
+    sys_echo " 升级 ZFile 容器"
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
@@ -218,26 +210,11 @@ update_server() {
     docker-compose up -d
 }
 
-# 查看 Aria2 配置
-look_aria2() {
-    sys_echo "${green}-----------------------------${plain}"
-    sys_echo " 查看 Aria2 配置"
-    sys_echo "${green}-----------------------------${plain}"
-    _rpc_port=`cat $CONTAINER_WORKDIR/.env | grep -E "^RPC_PORT=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
-    _rpc_secret=`cat $CONTAINER_WORKDIR/.env | grep -E "^RPC_SECRET=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
-
-    sys_echo "RPC 服务: http://aria2:$_rpc_port"
-    sys_echo "RPC 令牌: $_rpc_secret"
-
-    echo
-    read  -n1  -p "按任意键继续" key
-}
-
 show_menu() {
     num=$1
-    max_num=9
+    max_num=8
     if [[ $num == '' ]]; then
-        sys_echo "${green}Cloudreve -- 私有云盘${plain}"
+        sys_echo "${green}ZFile -- 在线文件存储${plain}"
         echo
         sys_echo "${green} 0${plain}. 退出脚本"
         sys_echo "------------------------"
@@ -250,8 +227,6 @@ show_menu() {
         sys_echo "${green} 6${plain}. 卸载服务"
         sys_echo "${green} 7${plain}. 配置参数"
         sys_echo "${green} 8${plain}. 升级容器"
-        sys_echo "------------------------"
-        sys_echo "${green} 9${plain}. Aria2 配置"
 
         echo && read -p "请输入选择 [0-$max_num]: " num
         echo
@@ -283,7 +258,7 @@ show_menu() {
         case "${num}" in
         2 )
             if [[ $CONTAINER_STATUS == 'running' ]]; then
-                confirm "Cloudreve 服务正在运行, 是否要重启?" "n"
+                confirm "ZFile 服务正在运行, 是否要重启?" "n"
                 if [[ $? == 0 ]]; then
                     echo
                     docker-compose restart
@@ -303,7 +278,7 @@ show_menu() {
                 docker-compose stop
             else
                 echo
-                sys_echo "${yellow}Cloudreve 服务已停止${plain}"
+                sys_echo "${yellow}ZFile 服务已停止${plain}"
             fi
         ;;
         4 )
@@ -321,18 +296,18 @@ show_menu() {
         clear
         read_server_env "only"
         if [[ $? == 0 ]]; then
-            sys_echo "${yellow}Cloudreve 服务已经安装${plain}"
+            sys_echo "${yellow}ZFile 服务已经安装${plain}"
             echo
             read  -n1  -p "按任意键继续" key
             clear
             show_menu
             return 1
         fi
-        confirm "确定要安装 Cloudreve 服务吗?" "n"
+        confirm "确定要安装 ZFile 服务吗?" "n"
         if [[ $? == 0 ]]; then
             clear
             install_server
-            sys_echo "${green}Cloudreve 服务安装完毕${plain}"
+            sys_echo "${green}ZFile 服务安装完毕${plain}"
             echo
             read  -n1  -p "按任意键继续" key
         fi
@@ -349,11 +324,11 @@ show_menu() {
             show_menu
             return 1
         fi
-        confirm "确定要卸载 Cloudreve 服务吗?" "n"
+        confirm "确定要卸载 ZFile 服务吗?" "n"
         if [[ $? == 0 ]]; then
             clear
             remove_server
-            sys_echo "${green}Cloudreve 服务卸载完毕${plain}"
+            sys_echo "${green}ZFile 服务卸载完毕${plain}"
             echo
             read  -n1  -p "按任意键继续" key
         fi
@@ -370,7 +345,7 @@ show_menu() {
             show_menu
             return 1
         fi
-        confirm "确定要重新配置 Cloudreve 服务吗?" "n"
+        confirm "确定要重新配置 ZFile 服务吗?" "n"
         if [[ $? == 0 ]]; then
             clear
             sett_server_env "save"
@@ -390,27 +365,13 @@ show_menu() {
             show_menu
             return 1
         fi
-        confirm "确定要升级 Cloudreve 相关容器吗?" "n"
+        confirm "确定要升级 ZFile 相关容器吗?" "n"
         if [[ $? == 0 ]]; then
             clear
             sett_server_env "save"
             echo
             read  -n1  -p "按任意键继续" key
         fi
-        clear
-        show_menu
-    ;;
-    9 ) # Aria2 配置
-        clear
-        read_server_env "only"
-        if [[ $? == 1 ]]; then
-            echo
-            read  -n1  -p "按任意键继续" key
-            clear
-            show_menu
-            return 1
-        fi
-        look_aria2
         clear
         show_menu
     ;;
