@@ -107,6 +107,11 @@ lsof_port() {
     fi
 }
 
+# 设置文件变量值
+set_file_env() {
+    sed -i "s/$(cat $3 | grep -E "^$1=" | sed -e 's/[]\/$*.^[]/\\&/g')/$1=$(echo $2 | sed -e 's/[]\/$*.^[]/\\&/g')/" $3
+}
+
 # 配置参数
 sett_server_env() {
 
@@ -115,7 +120,6 @@ sett_server_env() {
         sys_echo " 配置 Cloudreve 服务"
         sys_echo "${green}-----------------------------${plain}"
         EXCLUDE_HTTP_PORT=$HTTP_PORT
-        
     fi
     while read -p "HTTP端口[$HTTP_PORT]: " _http_port
     do
@@ -137,20 +141,27 @@ sett_server_env() {
         if [[ $_upload_dir = '' ]]; then
             _upload_dir=$UPLOAD_DIR
         fi
+        break
     done
     
     if [[ $1 == 'save' ]]; then
-        cd $CONTAINER_WORKDIR
-        mkdir -p $_upload_dir
-        sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
-        confirm "是否更新 Aria2 令牌?" "n"
+        confirm "确定要更新配置吗?" "n"
         if [[ $? == 0 ]]; then
-            _rpc_secret=`strings /dev/urandom | tr -dc A-Za-z0-9 | head -c16; echo`
-            sed -i "s/$(cat .env | grep -E "^RPC_SECRET=")/RPC_SECRET=$_rpc_secret/" .env
+            cd $CONTAINER_WORKDIR
+            mkdir -p $_upload_dir
+            set_file_env "HTTP_PORT" $_http_port .env
+            set_file_env "UPLOAD_DIR" $_upload_dir .env
+            confirm "是否更新 Aria2 令牌?" "n"
+            if [[ $? == 0 ]]; then
+                _rpc_secret=`strings /dev/urandom | tr -dc A-Za-z0-9 | head -c16; echo`\
+                set_file_env "RPC_SECRET" $_rpc_secret .env
+            fi
+            echo
+            docker-compose down
+            docker-compose up -d
+        else
+            return 1
         fi
-        docker-compose down
-        docker-compose up -d
     fi
 }
 
@@ -166,8 +177,8 @@ install_server() {
             _workdir="cloudreve"
         fi
         _workdir=`[[ $_workdir =~ ^\/ ]] && echo "$_workdir" || echo "$DOCKER_WORKDIR/$_workdir"`
+        break
     done
-    sett_server_env
 
     # 创建工作目录
     mkdir -p $_workdir
@@ -175,19 +186,23 @@ install_server() {
     mkdir -p {cloudreve,data}
     mkdir -p {cloudreve/avatar,cloudreve/uploads}
     touch {cloudreve/conf.ini,cloudreve/cloudreve.db}
-    mkdir -p $_upload_dir
 
     # 拉取 compose 及 配置文件
     wget --no-check-certificate -qO docker-compose.yml $REPOSITORY_RAW_COMPOSE/main/cloudreve/compose.yml
     wget --no-check-certificate -qO .env $REPOSITORY_RAW_COMPOSE/main/cloudreve/.env.example
 
     # 设置参数
-    sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
+    HTTP_PORT=`cat .env | grep -E "^HTTP_PORT=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
+    UPLOAD_DIR=`cat .env | grep -E "^UPLOAD_DIR=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
+    sett_server_env
+    mkdir -p $_upload_dir
+    set_file_env "HTTP_PORT" $_http_port .env
+    set_file_env "UPLOAD_DIR" $_upload_dir .env
     _rpc_secret=`strings /dev/urandom | tr -dc A-Za-z0-9 | head -c16; echo`
-    sed -i "s/$(cat .env | grep -E "^RPC_SECRET=")/RPC_SECRET=$_rpc_secret/" .env
+    set_file_env "RPC_SECRET" $_rpc_secret .env
 
     # 启动服务
+    echo
     docker-compose up -d
     docker-compose logs
 }
@@ -199,6 +214,7 @@ remove_server() {
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
+    echo
     docker-compose down -v
 
     confirm "是否要删除工作目录吗?" "n"
@@ -214,6 +230,7 @@ update_server() {
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
+    echo
     docker-compose down
     docker-compose up -d
 }
@@ -374,8 +391,10 @@ show_menu() {
         if [[ $? == 0 ]]; then
             clear
             sett_server_env "save"
-            echo
-            read  -n1  -p "按任意键继续" key
+            if [[ $? == 0 ]]; then
+                echo
+                read  -n1  -p "按任意键继续" key
+            fi
         fi
         clear
         show_menu
