@@ -107,6 +107,11 @@ lsof_port() {
     fi
 }
 
+# 设置文件变量值
+set_file_env() {
+    sed -i "s/$(cat $3 | grep -E "^$1=" | sed -e 's/[]\/$*.^[]/\\&/g')/$1=$(echo $2 | sed -e 's/[]\/$*.^[]/\\&/g')/" $3
+}
+
 # 配置参数
 sett_server_env() {
 
@@ -141,12 +146,18 @@ sett_server_env() {
     done
     
     if [[ $1 == 'save' ]]; then
-        cd $CONTAINER_WORKDIR
-        mkdir -p $_upload_dir
-        sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=" | sed -e 's/[]\/$*.^[]/\\&/g')/UPLOAD_DIR=$(echo $_upload_dir | sed -e 's/[]\/$*.^[]/\\&/g')/" .env
-        docker-compose down
-        docker-compose up -d
+        confirm "确定要更新配置吗?" "n"
+        if [[ $? == 0 ]]; then
+            cd $CONTAINER_WORKDIR
+            mkdir -p $_upload_dir
+            set_file_env "HTTP_PORT" $_http_port .env
+            set_file_env "UPLOAD_DIR" $_upload_dir .env
+            echo
+            docker-compose down
+            docker-compose up -d
+        else
+            return 1
+        fi
     fi
 }
 
@@ -180,10 +191,11 @@ install_server() {
     UPLOAD_DIR=`cat .env | grep -E "^UPLOAD_DIR=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
     sett_server_env
     mkdir -p $_upload_dir
-    sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=" | sed -e 's/[]\/$*.^[]/\\&/g')/UPLOAD_DIR=$(echo $_upload_dir | sed -e 's/[]\/$*.^[]/\\&/g')/" .env
+    set_file_env "HTTP_PORT" $_http_port .env
+    set_file_env "UPLOAD_DIR" $_upload_dir .env
 
     # 启动服务
+    echo
     docker-compose up -d
 }
 
@@ -194,6 +206,7 @@ remove_server() {
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
+    echo
     docker-compose down -v
 
     confirm "是否要删除工作目录吗?" "n"
@@ -209,6 +222,7 @@ update_server() {
     sys_echo "${green}-----------------------------${plain}"
 
     cd $CONTAINER_WORKDIR
+    echo
     docker-compose down
     docker-compose up -d
 }
@@ -352,8 +366,10 @@ show_menu() {
         if [[ $? == 0 ]]; then
             clear
             sett_server_env "save"
-            echo
-            read  -n1  -p "按任意键继续" key
+            if [[ $? == 0 ]]; then
+                echo
+                read  -n1  -p "按任意键继续" key
+            fi
         fi
         clear
         show_menu
@@ -371,7 +387,7 @@ show_menu() {
         confirm "确定要升级 ZFile 相关容器吗?" "n"
         if [[ $? == 0 ]]; then
             clear
-            sett_server_env "save"
+            update_server
             echo
             read  -n1  -p "按任意键继续" key
         fi
