@@ -144,7 +144,7 @@ sett_server_env() {
         cd $CONTAINER_WORKDIR
         mkdir -p $_upload_dir
         sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/UPLOAD_DIR=$_upload_dir/" .env
+        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=" | sed -e 's/[]\/$*.^[]/\\&/g')/UPLOAD_DIR=$(echo $_upload_dir | sed -e 's/[]\/$*.^[]/\\&/g')/" .env
         docker-compose down
         docker-compose up -d
     fi
@@ -181,7 +181,7 @@ install_server() {
     sett_server_env
     mkdir -p $_upload_dir
     sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/UPLOAD_DIR=$_upload_dir/" .env
+    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=" | sed -e 's/[]\/$*.^[]/\\&/g')/UPLOAD_DIR=$(echo $_upload_dir | sed -e 's/[]\/$*.^[]/\\&/g')/" .env
 
     # 启动服务
     docker-compose up -d
