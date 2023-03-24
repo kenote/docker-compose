@@ -84,7 +84,7 @@ read_server_env() {
     fi
     CONTAINER_STATUS=`docker inspect $CONTAINER_ID | jq -r ".[0].State.Status"`
     CONTAINER_WORKDIR=`docker inspect $CONTAINER_ID | jq -r ".[0].Config.Labels[\"com.docker.compose.project.working_dir\"]"`
-    HTTP_PORT=`docker inspect $CONTAINER_ID | jq -r '.[0].NetworkSettings.Ports["5212/tcp"][0].HostPort'`
+    HTTP_PORT=`docker inspect $CONTAINER_ID | jq -r '.[0].NetworkSettings.Ports["8080/tcp"][0].HostPort'`
     UPLOAD_DIR=`cat $CONTAINER_WORKDIR/.env | grep -E "^UPLOAD_DIR=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
     if [[ $1 == '' ]]; then
         echo
@@ -137,13 +137,14 @@ sett_server_env() {
         if [[ $_upload_dir = '' ]]; then
             _upload_dir=$UPLOAD_DIR
         fi
+        break
     done
     
     if [[ $1 == 'save' ]]; then
         cd $CONTAINER_WORKDIR
         mkdir -p $_upload_dir
         sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
+        sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/UPLOAD_DIR=$_upload_dir/" .env
         docker-compose down
         docker-compose up -d
     fi
@@ -161,14 +162,13 @@ install_server() {
             _workdir="zfile"
         fi
         _workdir=`[[ $_workdir =~ ^\/ ]] && echo "$_workdir" || echo "$DOCKER_WORKDIR/$_workdir"`
+        break
     done
-    sett_server_env
 
     # 创建工作目录
     mkdir -p $_workdir
     cd $_workdir
     mkdir -p {db,logs}
-    mkdir -p $_upload_dir
 
     # 拉取 compose 及 配置文件
     wget --no-check-certificate -qO docker-compose.yml $REPOSITORY_RAW_COMPOSE/main/zfile/compose.yml
@@ -176,12 +176,15 @@ install_server() {
     wget --no-check-certificate -qO application.properties $REPOSITORY_RAW_COMPOSE/main/zfile/application.properties
 
     # 设置参数
+    HTTP_PORT=`cat .env | grep -E "^HTTP_PORT=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
+    UPLOAD_DIR=`cat .env | grep -E "^UPLOAD_DIR=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
+    sett_server_env
+    mkdir -p $_upload_dir
     sed -i "s/$(cat .env | grep -E "^HTTP_PORT=")/HTTP_PORT=$_http_port/" .env
-    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/HTTP_PORT=$_upload_dir/" .env
+    sed -i "s/$(cat .env | grep -E "^UPLOAD_DIR=")/UPLOAD_DIR=$_upload_dir/" .env
 
     # 启动服务
     docker-compose up -d
-    docker-compose logs
 }
 
 # 卸载服务
