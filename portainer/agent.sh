@@ -151,8 +151,8 @@ install_server() {
             _workdir="portainer_agent"
         fi
         _workdir=`[[ $_workdir =~ ^\/ ]] && echo "$_workdir" || echo "$DOCKER_WORKDIR/$_workdir"`
+        break
     done
-    sett_server_env
 
     # 创建工作目录
     mkdir -p $_workdir
@@ -163,6 +163,8 @@ install_server() {
     wget --no-check-certificate -qO .env $REPOSITORY_RAW_COMPOSE/main/portainer/.env.agent
 
     # 设置参数
+    BIND_PORT=`cat .env | grep -E "^BIND_PORT=" | sed -E 's/\s//g' | sed 's/\(.*\)=\(.*\)/\2/g'`
+    sett_server_env
     sed -i "s/$(cat .env | grep -E "^BIND_PORT=")/BIND_PORT=$_bind_port/" .env
 
     # 启动客户机
